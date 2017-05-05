@@ -17,22 +17,23 @@ private:
 	enum class TokenType
 	{
 		ttFunc						= 0,
-		ttFuncArgSep				= 1,
-		ttLeftBracket				= 2,
-		ttRightBracket				= 3,
+		ttArgSep						= 1,
+		ttLBracket					= 2,
+		ttRBracket					= 3,
 		ttMsgField					= 4,
 		ttNumber						= 5,
 		ttString						= 6,
-		ttArray						= 7,
+		ttLSquareBracket			= 7,
+		ttRSquareBracket			= 8,
 		// operator enumerations are listed by their precedence
-		ttOperatorLogicalOr		= 8,	// ||
-		ttOperatorLogicalAnd		= 9,	// &&
-		ttOperatorEqual			= 10,	// ==
-		ttOperatorNotEqual		= 11,	// !=
-		ttOperatorLess				= 12,	// <
-		ttOperatorLessOrEqual	= 13,	// <=
-		ttOperatorMore				= 14,	// >
-		ttOperatorMoreOrEqual	= 15,	// >=
+		ttOperatorLogicalOr		= 9,	// ||
+		ttOperatorLogicalAnd		= 10,	// &&
+		ttOperatorEqual			= 11,	// ==
+		ttOperatorNotEqual		= 12,	// !=
+		ttOperatorLess				= 13,	// <
+		ttOperatorLessOrEqual	= 14,	// <=
+		ttOperatorMore				= 15,	// >
+		ttOperatorMoreOrEqual	= 16,	// >=
 		ttOperatorFirst			= ttOperatorLogicalOr,
 		ttOperatorLast				= ttOperatorMoreOrEqual
 	};
@@ -68,23 +69,26 @@ private:
 	bool ReadToken(Token& token);
 	bool ReadCharToken(const char ch, const TokenType enTokenType, Token& token);
 	bool Read2CharsToken(const std::pair<char, char>& ch, const TokenType enTokenType, Token& token);
-	bool ReadLeftBracket(Token& token);
-	bool ReadRightBracket(Token& token);
-	bool ReadFuncArgSep(Token& token);
+	bool ReadLBracket(Token& token);
+	bool ReadRBracket(Token& token);
+	bool ReadArgSep(Token& token);
 	bool ReadOperator(Token& token);
 	bool ReadNumber(Token& token);
 	bool ReadString(Token& token);
 	bool ReadFunc(Token& token);
 	bool ReadMsgField(Token& token);
-	bool ReadArray(Token& token);
+	bool ReadLSquareBracket(Token& token);
+	bool ReadRSquareBracket(Token& token);
 
 	bool ProcessToken(const Token& token);
 	bool ProcessScalar(const Token& token);
 	bool ProcessFunc(const Token& token);
-	bool ProcessFuncArgSep(const Token& token);
-	bool ProcessLeftBracket(const Token& token);
-	bool ProcessRightBracket(const Token& token);
+	bool ProcessArgSep(const Token& token);
+	bool ProcessLBracket(const Token& token);
+	bool ProcessRBracket(const Token& token);
 	bool ProcessOperator(const Token& token);
+	bool ProcessLSquareBracket(const Token& token);
+	bool ProcessRSquareBracket(const Token& token);
 
 	bool EvaluateNumber(const Token& token);
 	bool EvaluateString(const Token& token);

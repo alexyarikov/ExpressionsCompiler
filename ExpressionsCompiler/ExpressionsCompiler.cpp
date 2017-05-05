@@ -28,7 +28,7 @@ bool ExpressionsCompiler::Parse(const std::string& strExpression)
 
 	while (!m_OperatorStack.empty())
 	{
-		if (m_OperatorStack.top().enType == TokenType::ttLeftBracket)
+		if (m_OperatorStack.top().enType == TokenType::ttLBracket)
 			return false;
 		MoveToken();
 	}
@@ -112,16 +112,16 @@ bool ExpressionsCompiler::ReadToken(Token& token)
 
 	SkipWhiteSpaces();
 
-	if (ReadLeftBracket(token))
+	if (ReadLBracket(token))
 		return true;
 
-	if (ReadRightBracket(token))
+	if (ReadRBracket(token))
 		return true;
 
 	if (ReadOperator(token))
 		return true;
 
-	if (ReadFuncArgSep(token))
+	if (ReadArgSep(token))
 		return true;
 
 	if (ReadNumber(token))
@@ -134,6 +134,12 @@ bool ExpressionsCompiler::ReadToken(Token& token)
 		return true;
 
 	if (ReadMsgField(token))
+		return true;
+
+	if (ReadLSquareBracket(token))
+		return true;
+
+	if (ReadRSquareBracket(token))
 		return true;
 
 	return false;
@@ -163,19 +169,19 @@ bool ExpressionsCompiler::Read2CharsToken(const std::pair<char, char>& ch, const
 		return false;
 }
 
-bool ExpressionsCompiler::ReadLeftBracket(Token& token)
+bool ExpressionsCompiler::ReadLBracket(Token& token)
 {
-	return ReadCharToken('(', TokenType::ttLeftBracket, token);
+	return ReadCharToken('(', TokenType::ttLBracket, token);
 }
 
-bool ExpressionsCompiler::ReadRightBracket(Token& token)
+bool ExpressionsCompiler::ReadRBracket(Token& token)
 {
-	return ReadCharToken(')', TokenType::ttRightBracket, token);
+	return ReadCharToken(')', TokenType::ttRBracket, token);
 }
 
-bool ExpressionsCompiler::ReadFuncArgSep(Token& token)
+bool ExpressionsCompiler::ReadArgSep(Token& token)
 {
-	return ReadCharToken(',', TokenType::ttFuncArgSep, token);
+	return ReadCharToken(',', TokenType::ttArgSep, token);
 }
 
 bool ExpressionsCompiler::ReadOperator(Token& token)
@@ -267,23 +273,14 @@ bool ExpressionsCompiler::ReadMsgField(Token& token)
 	return false;
 }
 
-bool ExpressionsCompiler::ReadArray(Token& token)
+bool ExpressionsCompiler::ReadLSquareBracket(Token& token)
 {
-	if (*m_itCurrent == '[')
-	{
-		// this is a string, search for its end
-		auto it = std::find(m_itCurrent + 1, m_strExpression.cend(), ']');
-		if (it != m_strExpression.cend())
-		{
-			token.enType = TokenType::ttString;
-			token.itBegin = m_itCurrent + 1;
-			token.itEnd = it;
-			m_itCurrent = it + 1;
-			return true;
-		}
-	}
+	return ReadCharToken('[', TokenType::ttLBracket, token);
+}
 
-	return false;
+bool ExpressionsCompiler::ReadRSquareBracket(Token& token)
+{
+	return ReadCharToken(']', TokenType::ttLBracket, token);
 }
 
 bool ExpressionsCompiler::ProcessToken(const Token& token)
@@ -296,12 +293,16 @@ bool ExpressionsCompiler::ProcessToken(const Token& token)
 		return ProcessScalar(token);
 	case TokenType::ttFunc:
 		return ProcessFunc(token);
-	case TokenType::ttFuncArgSep:
-		return ProcessFuncArgSep(token);
-	case TokenType::ttLeftBracket:
-		return ProcessLeftBracket(token);
-	case TokenType::ttRightBracket:
-		return ProcessRightBracket(token);
+	case TokenType::ttArgSep:
+		return ProcessArgSep(token);
+	case TokenType::ttLBracket:
+		return ProcessLBracket(token);
+	case TokenType::ttRBracket:
+		return ProcessRBracket(token);
+	case TokenType::ttLSquareBracket:
+		return ProcessLSquareBracket(token);
+	case TokenType::ttRSquareBracket:
+		return ProcessRSquareBracket(token);
 	default:
 		if (IsOperatorToken(token))
 			return ProcessOperator(token);
@@ -321,9 +322,9 @@ bool ExpressionsCompiler::ProcessFunc(const Token& token)
 	return true;
 }
 
-bool ExpressionsCompiler::ProcessFuncArgSep(const Token& token)
+bool ExpressionsCompiler::ProcessArgSep(const Token& token)
 {
-	while (!m_OperatorStack.empty() && m_OperatorStack.top().enType != TokenType::ttLeftBracket)
+	while (!m_OperatorStack.empty() && m_OperatorStack.top().enType != TokenType::ttLBracket)
 		MoveToken();
 
 	// if operator stack is empty, it means that there was no function arguments begin token '{' or function arguments separator missed
@@ -331,15 +332,15 @@ bool ExpressionsCompiler::ProcessFuncArgSep(const Token& token)
 	return !m_OperatorStack.empty();
 }
 
-bool ExpressionsCompiler::ProcessLeftBracket(const Token& token)
+bool ExpressionsCompiler::ProcessLBracket(const Token& token)
 {
 	m_OperatorStack.push(token);
 	return true;
 }
 
-bool ExpressionsCompiler::ProcessRightBracket(const Token& token)
+bool ExpressionsCompiler::ProcessRBracket(const Token& token)
 {
-	while (!m_OperatorStack.empty() && m_OperatorStack.top().enType != TokenType::ttLeftBracket)
+	while (!m_OperatorStack.empty() && m_OperatorStack.top().enType != TokenType::ttLBracket)
 		MoveToken();
 
 	// if operator stack is empty, it means that there was no left bracket token, this is an parsing error
@@ -366,6 +367,27 @@ bool ExpressionsCompiler::ProcessOperator(const Token& token)
 	}
 
 	m_OperatorStack.push(token);
+
+	return true;
+}
+
+bool ExpressionsCompiler::ProcessLSquareBracket(const Token& token)
+{
+	m_OperatorStack.push(token);
+	return true;
+}
+
+bool ExpressionsCompiler::ProcessRSquareBracket(const Token& token)
+{
+	while (!m_OperatorStack.empty() && m_OperatorStack.top().enType != TokenType::ttLSquareBracket)
+		MoveToken();
+
+	// if operator stack is empty, it means that there was no left square bracket token, this is an parsing error
+	if (m_OperatorStack.empty())
+		return false;
+
+	// pop left square bracket
+	m_OperatorStack.pop();
 
 	return true;
 }
