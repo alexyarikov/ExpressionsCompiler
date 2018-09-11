@@ -8,9 +8,9 @@ namespace Renaissance
 bool ExpressionParser::Parse(const std::string& expression, ExpressionTree& expression_tree)
 {
    while (!expression_tree.empty())
-		expression_tree.pop();
+      expression_tree.pop();
 
-	Clear();
+   Clear();
 
    _expression = "(" + expression + ")";
    _current = _expression.cbegin();
@@ -31,22 +31,22 @@ bool ExpressionParser::Parse(const std::string& expression, ExpressionTree& expr
       _operators.pop();
    }
 
-	expression_tree.swap(_expression_tree);
+   expression_tree.swap(_expression_tree);
    return true;
 }
 
 // print the syntax tree to stdout
 void ExpressionParser::PrintOutputTree() const
 {
-	if (!_expression_tree.empty())
-		PrintOutputTree(static_cast<std::shared_ptr<ExpressionNode>>(_expression_tree.top()), 0);
+   if (!_expression_tree.empty())
+      PrintOutputTree(static_cast<std::shared_ptr<ExpressionNode>>(_expression_tree.top()), 0);
 }
 
 
 // this is to clear everything to prepare a new parsing
 void ExpressionParser::Clear()
 {
-	_expression.clear();
+   _expression.clear();
    while (!_expression_tree.empty()) _expression_tree.pop();
    while (!_operators.empty())       _operators.pop();
    while (!_args_number.empty())     _args_number.pop();
@@ -77,23 +77,23 @@ bool ExpressionParser::MoveToOutput(const uint16_t operands_number, const bool i
       parent_node->_token = _operators.top();
    }
 
-	parent_node->_child = _expression_tree.top();
-	_expression_tree.pop();
+   parent_node->_child = _expression_tree.top();
+   _expression_tree.pop();
 
-	// retrieve other operands, add them into the tree in reversed order (to keep original arguments order in syntax tree)
-	for (uint16_t i = 0; i < operands_number - 1; i++)
-	{
-		if (_expression_tree.empty())
-			return false; // some operands are missed
-		auto old_child = parent_node->_child;
-		parent_node->_child = _expression_tree.top();
-		parent_node->_child->_sibling = old_child;
-		_expression_tree.pop();
-	}
+   // retrieve other operands, add them into the tree in reversed order (to keep original arguments order in syntax tree)
+   for (uint16_t i = 0; i < operands_number - 1; i++)
+   {
+      if (_expression_tree.empty())
+         return false; // some operands are missed
+      auto old_child = parent_node->_child;
+      parent_node->_child = _expression_tree.top();
+      parent_node->_child->_sibling = old_child;
+      _expression_tree.pop();
+   }
 
-	_expression_tree.push(parent_node);
+   _expression_tree.push(parent_node);
 
-	return CheckOutputNode(parent_node, operands_number);
+   return CheckOutputNode(parent_node, operands_number);
 }
 
 // reads a token from the parsed string into the 'token' output parameter
@@ -312,30 +312,30 @@ bool ExpressionParser::ProcessToken(const Token& token)
 {
    switch (token._type)
    {
-		case TokenType::Scalar:
-		case TokenType::Variable:
-			return ProcessScalar(token);
-		case TokenType::ArgSep:
-			return ProcessArgSep(token);
-		case TokenType::LBracket:
-			return ProcessLBracket(token);
-		case TokenType::LSquareBracket:
-			return ProcessLSquareBracket(token);
-		case TokenType::LBrace:
-			return ProcessLBrace(token);
-		case TokenType::Func:
-			return ProcessFunc(token);
-		case TokenType::RBracket:
-			return ProcessRBracket(token);
-		case TokenType::RSquareBracket:
-			return ProcessRSquareBracket(token);
-		case TokenType::RBrace:
-			return ProcessRBrace(token);
-		default:
-			if (token.IsOperator())
-				return ProcessOperator(token);
-	}
-	return false; // unknown token
+      case TokenType::Scalar:
+      case TokenType::Variable:
+         return ProcessScalar(token);
+      case TokenType::ArgSep:
+         return ProcessArgSep(token);
+      case TokenType::LBracket:
+         return ProcessLBracket(token);
+      case TokenType::LSquareBracket:
+         return ProcessLSquareBracket(token);
+      case TokenType::LBrace:
+         return ProcessLBrace(token);
+      case TokenType::Func:
+         return ProcessFunc(token);
+      case TokenType::RBracket:
+         return ProcessRBracket(token);
+      case TokenType::RSquareBracket:
+         return ProcessRSquareBracket(token);
+      case TokenType::RBrace:
+         return ProcessRBrace(token);
+      default:
+         if (token.IsOperator())
+            return ProcessOperator(token);
+   }
+   return false; // unknown token
 }
 
 bool ExpressionParser::ProcessScalar(const Token& token)
@@ -462,55 +462,55 @@ bool ExpressionParser::ProcessRBrace(const Token& token)
 
 bool ExpressionParser::CheckOutputNode(const std::shared_ptr<ExpressionNode>& node, const uint16_t operands_number) const
 {
-	if (!node)
-		return false;
+   if (!node)
+      return false;
 
-	switch (node->_token._type)
-	{
-		case TokenType::RBrace:
-			return CheckFunctionNode(node);
-		case TokenType::RSquareBracket:
-			return CheckArrayNode(node, operands_number);
-		// TODO: check other token types
-		default:
-			return true;
-	}
+   switch (node->_token._type)
+   {
+      case TokenType::RBrace:
+         return CheckFunctionNode(node);
+      case TokenType::RSquareBracket:
+         return CheckArrayNode(node, operands_number);
+      // TODO: check other token types
+      default:
+         return true;
+   }
 }
 
 bool ExpressionParser::CheckFunctionNode(const std::shared_ptr<ExpressionNode>& node) const
 {
-	if (!node)
-		return false;
+   if (!node)
+      return false;
 
-	if (std::string(node->_token._begin, node->_token._end) == "SUBSTR")
-	{
-		if (!node->_child || !node->_child->_sibling || !node->_child->_sibling->_sibling ||
+   if (std::string(node->_token._begin, node->_token._end) == "SUBSTR")
+   {
+      if (!node->_child || !node->_child->_sibling || !node->_child->_sibling->_sibling ||
           node->_child->_token._type != TokenType::Variable ||
-			 node->_child->_sibling->_token._type != TokenType::Scalar ||
-			 node->_child->_sibling->_sibling->_token._type != TokenType::Scalar)
-		{
-			return false;
-		}
-	}
-	return true;
+          node->_child->_sibling->_token._type != TokenType::Scalar ||
+          node->_child->_sibling->_sibling->_token._type != TokenType::Scalar)
+      {
+         return false;
+      }
+   }
+   return true;
 }
 
 bool ExpressionParser::CheckArrayNode(const std::shared_ptr<ExpressionNode>& node, const uint16_t operands_number) const
 {
-	if (!node)
-		return false;
+   if (!node)
+      return false;
 
-	// check that all array items are scalar
-	auto child_node = node->_child;
+   // check that all array items are scalar
+   auto child_node = node->_child;
 
-	for (uint16_t i = 0; i < operands_number && child_node; i++)
-	{
-		if (child_node->_token._type != TokenType::Scalar)
-			return false;
-		child_node = child_node->_sibling;
-	}
+   for (uint16_t i = 0; i < operands_number && child_node; i++)
+   {
+      if (child_node->_token._type != TokenType::Scalar)
+         return false;
+      child_node = child_node->_sibling;
+   }
 
-	return true;
+   return true;
 }
 
 
@@ -519,17 +519,17 @@ bool ExpressionParser::CheckArrayNode(const std::shared_ptr<ExpressionNode>& nod
 // 'level' the nesting level of current node, is used for indentation while printing
 void ExpressionParser::PrintOutputTree(const std::shared_ptr<ExpressionNode>& node, const size_t level) const
 {
-	if (!node)
-		return;
+   if (!node)
+      return;
 
-	std::cout << std::string(level * 2, ' ') << node->_token.ToString() << std::endl;
+   std::cout << std::string(level * 2, ' ') << node->_token.ToString() << std::endl;
 
-	auto child = node->_child;
-	while (child)
-	{
-		PrintOutputTree(child, level + 1);
-		child = child->_sibling;
-	}
+   auto child = node->_child;
+   while (child)
+   {
+      PrintOutputTree(child, level + 1);
+      child = child->_sibling;
+   }
 }
 }
 

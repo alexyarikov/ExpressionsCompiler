@@ -28,14 +28,14 @@ public:
    ~ExpressionParser() = default;
 
    bool Parse(const std::string& expression, ExpressionTree& expression_tree);
-	void PrintOutputTree() const;
+   void PrintOutputTree() const;
 
 private:
    std::string _expression;
    std::string::const_iterator _current;
    std::stack<Token> _operators;
    std::stack<uint16_t> _args_number;
-	ExpressionTree _expression_tree;
+   ExpressionTree _expression_tree;
 
    void Clear();
    void SkipWhiteSpaces();
@@ -69,11 +69,11 @@ private:
    bool ProcessLBrace(const Token& token);
    bool ProcessRBrace(const Token& token);
 
-	bool CheckOutputNode(const std::shared_ptr<ExpressionNode>& node, const uint16_t operands_number) const;
-	bool CheckFunctionNode(const std::shared_ptr<ExpressionNode>& node) const;
-	bool CheckArrayNode(const std::shared_ptr<ExpressionNode>& node, const uint16_t operands_number) const;
+   bool CheckOutputNode(const std::shared_ptr<ExpressionNode>& node, const uint16_t operands_number) const;
+   bool CheckFunctionNode(const std::shared_ptr<ExpressionNode>& node) const;
+   bool CheckArrayNode(const std::shared_ptr<ExpressionNode>& node, const uint16_t operands_number) const;
 
-	void PrintOutputTree(const std::shared_ptr<ExpressionNode>& node, const size_t level) const;
+   void PrintOutputTree(const std::shared_ptr<ExpressionNode>& node, const size_t level) const;
 };
 }
 

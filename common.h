@@ -37,51 +37,51 @@ struct Token
    std::string::const_iterator _begin;
    std::string::const_iterator _end;
 
-	Token() = default;
+   Token() = default;
    explicit Token(const TokenType& type) : _type(type) {}
-	inline bool IsOperator() const noexcept { return _type >= TokenType::OperatorFirst && _type <= TokenType::OperatorLast; }
-	std::string ToString() const
-	{
-		switch (_type)
-		{
-		case TokenType::ArgSep:
-			return ",";
-		case TokenType::LBracket:
-			return "(";
-		case TokenType::RBracket:
-			return ")";
-		case TokenType::Scalar:
-		case TokenType::Variable:
-		case TokenType::Func:
-			return std::string(_begin, _end);
-		case TokenType::LSquareBracket:
-			return "ARRAY";
-		case TokenType::RSquareBracket:
-			return "]";
-		case TokenType::LBrace:
-			return "{";
-		case TokenType::RBrace:
-			return "}";
-		case TokenType::OperatorLogicalOr:
-			return "or";
-		case TokenType::OperatorLogicalAnd:
-			return "and";
-		case TokenType::OperatorEqual:
-			return "==";
-		case TokenType::OperatorNotEqual:
-			return "!=";
-		case TokenType::OperatorLess:
-			return "<";
-		case TokenType::OperatorLessOrEqual:
-			return "<=";
-		case TokenType::OperatorMore:
-			return ">";
-		case TokenType::OperatorMoreOrEqual:
-			return ">=";
-		default:
-			return "";
-		}
-	}
+   inline bool IsOperator() const noexcept { return _type >= TokenType::OperatorFirst && _type <= TokenType::OperatorLast; }
+   std::string ToString() const
+   {
+      switch (_type)
+      {
+      case TokenType::ArgSep:
+         return ",";
+      case TokenType::LBracket:
+         return "(";
+      case TokenType::RBracket:
+         return ")";
+      case TokenType::Scalar:
+      case TokenType::Variable:
+      case TokenType::Func:
+         return std::string(_begin, _end);
+      case TokenType::LSquareBracket:
+         return "ARRAY";
+      case TokenType::RSquareBracket:
+         return "]";
+      case TokenType::LBrace:
+         return "{";
+      case TokenType::RBrace:
+         return "}";
+      case TokenType::OperatorLogicalOr:
+         return "or";
+      case TokenType::OperatorLogicalAnd:
+         return "and";
+      case TokenType::OperatorEqual:
+         return "==";
+      case TokenType::OperatorNotEqual:
+         return "!=";
+      case TokenType::OperatorLess:
+         return "<";
+      case TokenType::OperatorLessOrEqual:
+         return "<=";
+      case TokenType::OperatorMore:
+         return ">";
+      case TokenType::OperatorMoreOrEqual:
+         return ">=";
+      default:
+         return "";
+      }
+   }
 };
 
 struct ExpressionNode
